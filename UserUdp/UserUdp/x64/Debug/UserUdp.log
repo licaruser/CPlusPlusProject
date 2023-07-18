@@ -1,0 +1,8 @@
+﻿  Demo.cpp
+E:\Document_computer_desk\all\code\C_PlusPlus\Udp\UserUdp\UserUdp\Demo.cpp(62,110): warning C4267:  “参数”: 从“size_t”转换到“int”，可能丢失数据
+E:\Document_computer_desk\all\code\C_PlusPlus\Udp\UserUdp\UserUdp\Demo.cpp(37,1): error C4996:  'inet_addr': Use inet_pton() or InetPton() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\winsock2.h(1831): message :  参见“inet_addr”的声明
+E:\Document_computer_desk\all\code\C_PlusPlus\Udp\UserUdp\UserUdp\Demo.cpp(52,1): error C4996:  'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\winsock2.h(1849): message :  参见“inet_ntoa”的声明
+E:\Document_computer_desk\all\code\C_PlusPlus\Udp\UserUdp\UserUdp\Demo.cpp(57,1): error C4996:  'inet_ntoa': Use inet_ntop() or InetNtop() instead or define _WINSOCK_DEPRECATED_NO_WARNINGS to disable deprecated API warnings
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\um\winsock2.h(1849): message :  参见“inet_ntoa”的声明
