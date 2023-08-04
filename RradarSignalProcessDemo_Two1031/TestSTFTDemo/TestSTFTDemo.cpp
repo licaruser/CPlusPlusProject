@@ -4,6 +4,7 @@
 
 ParamAnalyse* m_TmpParamEsta = new(ParamAnalyse);       //参数估计
 
+CUDASignalParamAnalyse* m_SignalProcess_CUDA = new(CUDASignalParamAnalyse); //调用GPU进行参数估计
 
 int main()
 {
@@ -37,9 +38,13 @@ int main()
 
 	//ParamAnalyse TestClass;     //直接使用类定义申明
 	//TestClass.StepAdvance(trf);
-	m_TmpParamEsta->StepAdvance(trf, SignalData);   //使用new申请对象，在堆中分配了内存，堆上的内存分配，亦称动态内存分配
+
+	/*Demo01 ： 调用CPU进行参数估计方案*/
+	//m_TmpParamEsta->StepAdvance(trf, SignalData);   //使用new申请对象，在堆中分配了内存，堆上的内存分配，亦称动态内存分配
 	
-	
+	/*Demo02 ： 调用GPU进行参数估计方案*/
+	m_SignalProcess_CUDA->StepAdvance(trf, SignalData);
+
 	//录取短时傅里叶变换后的数据
 	//Tmp_stft.SaveData_Csv(trf);
 

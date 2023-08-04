@@ -32,3 +32,9 @@ RradarSignalProcessDemo_Two1031/SignalParamAnalyse_CUDA/x64/
 RradarSignalProcessDemo_Two1031/TestSTFTDemo/x64/
 
 RradarSignalProcessDemo_Two1031/ThisTestDemo/x64/
+
+RradarSignalProcessDemo_Two1031/BIN/SignalParamAnalyse_CUDA.dll
+
+RradarSignalProcessDemo_Two1031/BIN/SignalParamAnalyse_CUDA.lib
+
+RradarSignalProcessDemo_Two1031/BIN/SignalParamAnalyse_CUDA.pdb

@@ -20,6 +20,7 @@
 #include "libxl_412\include_cpp\libxl.h"
 #include "ParamAnalyse.h"
 #include "PublicDefinition.h"
+#include "SignalParamAnalyse.h"
 
 
 #define M_PI 3.1415926535897932384626433

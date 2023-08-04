@@ -19,6 +19,9 @@
 #include <vector_types.h>
 #include <vector>
 #include <complex>
+#include <cuda.h>
+#include <cuComplex.h>
+#include <CudaArray.cuh>
 
 
 using namespace std;
