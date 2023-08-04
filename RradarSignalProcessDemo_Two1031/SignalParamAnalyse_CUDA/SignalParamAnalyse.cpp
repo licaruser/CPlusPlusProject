@@ -15,20 +15,32 @@ void CUDASignalParamAnalyse::StepAdvance(const vector<vector<complex<double>>>& 
 	CCMat Data;
 
 	// 数据以矩阵的形式保存
-	int cols;
-	int rows;
-	cols = trf.size();
+	int cols = 0;
+	int rows = 0;
+	cols = trf.size();//62500
 	if (trf.at(0).size() > 0)
 	{
-		rows = trf.at(0).size();
+		rows = trf.at(0).size(); //128
 	}
 	
-	complex<double>* Matrix[128][62500];
+	Data.Resize(rows, cols, 1);
 
+
+	cuComplex* Matrix[128][62500];
+	for (int ii = 0; ii < cols; ii++)  //62500
+	{
+		for (int jj = 0; jj < rows; jj++) //128
+		{
+			Matrix[jj][ii]->x = trf.at(ii).at(jj).real();
+			Matrix[jj][ii]->y = trf.at(ii).at(jj).imag();
+		}
+	}
 
 	//将CPU代码转换到GPU上
 	cuComplex *gpuMatrix;
-	cudaMalloc((void**)& gpuMatrix, int(trf.size()) * int(trf.at(0).size()) * sizeof(cuComplex));
+	cudaMalloc((void**)& gpuMatrix, rows * cols * sizeof(cuComplex));
 
-	cudaMemcpy(d_matrix, matrix, rows * cols * sizeof(Complex), cudaMemcpyHostToDevice);
+	cudaMemcpy(gpuMatrix, Matrix, rows * cols * sizeof(cuComplex), cudaMemcpyHostToDevice);
+
+
 }
