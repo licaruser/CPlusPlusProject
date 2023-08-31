@@ -34,13 +34,14 @@ int main()
 	//代码结束，计时结束
 	QueryPerformanceCounter(&Code_stop);
 	double time_sec = (unsigned long long)(Code_stop.QuadPart - Code_start.QuadPart) / (double)freq.QuadPart;
-	cout << "stft程序运行时间："<< time_sec << endl;
+	//std::cout << "stft程序运行时间："<< time_sec << std::endl;
+	//cout.flush();
 
 	//ParamAnalyse TestClass;     //直接使用类定义申明
 	//TestClass.StepAdvance(trf);
 
 	/*Demo01 ： 调用CPU进行参数估计方案*/
-	//m_TmpParamEsta->StepAdvance(trf, SignalData);   //使用new申请对象，在堆中分配了内存，堆上的内存分配，亦称动态内存分配
+	m_TmpParamEsta->StepAdvance(trf, SignalData);   //使用new申请对象，在堆中分配了内存，堆上的内存分配，亦称动态内存分配
 	
 	/*Demo02 ： 调用GPU进行参数估计方案*/
 	m_SignalProcess_CUDA->StepAdvance(trf, SignalData);

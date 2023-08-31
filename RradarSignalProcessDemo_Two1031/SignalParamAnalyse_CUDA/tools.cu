@@ -1369,53 +1369,53 @@ void Transpose(CCMat& data, CCMat& result, cudaStream_t stream)
 		CirculShiftCol << <blocksPerGrid, threadsPerBlock, 0, stream >> >(Data.FirstAddr(), Result.FirstAddr(), shiftNum, Rows, Cols, Bands);
 	}
 
-	// 求面积中心
-	double CenterOfMass(Vector<double> envelope) {
-		//求向量面积中心
-		double Mass = 0;
-		double area = 0;
-		double areaLast = 0;
-		double center = 0;
-		int flag = 0;
-		//cout << envelope[0] << " " << envelope[1] << " " << envelope[2] << " " << envelope[3] << " " << envelope[4] << endl;
-		//envelope[0] = envelope[0] - 0.1;
-		if (envelope.size() == 1)
-			center = 0;
-		else {
-			Mass = sum(envelope) - envelope[0] / 2 - envelope[envelope.size() - 1] / 2; // 总面积
-																						//cout << Mass << endl;
-			for (int ii = 0; (ii < envelope.size() - 1) && (flag == 0); ii++)
-			{
-				area += (envelope[ii] + envelope[ii + 1]) / 2;
-				areaLast = area - (envelope[ii] + envelope[ii + 1]) / 2;
-				if (area == Mass / 2) {
-					//面积中心在envelop[ii+1]处
-					center = ii + 1;
-				}
-				// 			cout << Mass / 2 << endl;
-				// 			cout << Mass / 2 - envelope[ii] << endl;
-				if (area > Mass / 2) {
-					//面积中心在envelop[ii] 与 envelop[ii+1]之间
-					if (abs(envelope[ii + 1] - envelope[ii]) < 1e-6)
-					{
-						center = ii + 0.5;
-					}
-					else
-					{
-						/*cout << "L2-L1:" << envelope[ii + 1] - envelope[ii] << endl;
-						cout << "L1^2:"<< pow(envelope[ii], 2) << endl;
-						cout << "P:" << (Mass / 2 - envelope[ii]) << endl;
-						cout << "根号下:" << sqrt(pow(envelope[ii], 2) + 2 * (envelope[ii + 1] - envelope[ii])*(Mass / 2 - envelope[ii])) << endl;*/
-						center = ii + (sqrt(pow(envelope[ii], 2) + 2 * (envelope[ii + 1] - envelope[ii])*(Mass / 2 - areaLast)) - envelope[ii]) / (envelope[ii + 1] - envelope[ii]);
-					}
-					//ii = envelope.size()-1;
-					flag = 1;
-				}
+	//// 求面积中心
+	//double CenterOfMass(Vector<double> envelope) {
+	//	//求向量面积中心
+	//	double Mass = 0;
+	//	double area = 0;
+	//	double areaLast = 0;
+	//	double center = 0;
+	//	int flag = 0;
+	//	//cout << envelope[0] << " " << envelope[1] << " " << envelope[2] << " " << envelope[3] << " " << envelope[4] << endl;
+	//	//envelope[0] = envelope[0] - 0.1;
+	//	if (envelope.size() == 1)
+	//		center = 0;
+	//	else {
+	//		Mass = sum(envelope) - envelope[0] / 2 - envelope[envelope.size() - 1] / 2; // 总面积
+	//																					//cout << Mass << endl;
+	//		for (int ii = 0; (ii < envelope.size() - 1) && (flag == 0); ii++)
+	//		{
+	//			area += (envelope[ii] + envelope[ii + 1]) / 2;
+	//			areaLast = area - (envelope[ii] + envelope[ii + 1]) / 2;
+	//			if (area == Mass / 2) {
+	//				//面积中心在envelop[ii+1]处
+	//				center = ii + 1;
+	//			}
+	//			// 			cout << Mass / 2 << endl;
+	//			// 			cout << Mass / 2 - envelope[ii] << endl;
+	//			if (area > Mass / 2) {
+	//				//面积中心在envelop[ii] 与 envelop[ii+1]之间
+	//				if (abs(envelope[ii + 1] - envelope[ii]) < 1e-6)
+	//				{
+	//					center = ii + 0.5;
+	//				}
+	//				else
+	//				{
+	//					/*cout << "L2-L1:" << envelope[ii + 1] - envelope[ii] << endl;
+	//					cout << "L1^2:"<< pow(envelope[ii], 2) << endl;
+	//					cout << "P:" << (Mass / 2 - envelope[ii]) << endl;
+	//					cout << "根号下:" << sqrt(pow(envelope[ii], 2) + 2 * (envelope[ii + 1] - envelope[ii])*(Mass / 2 - envelope[ii])) << endl;*/
+	//					center = ii + (sqrt(pow(envelope[ii], 2) + 2 * (envelope[ii + 1] - envelope[ii])*(Mass / 2 - areaLast)) - envelope[ii]) / (envelope[ii + 1] - envelope[ii]);
+	//				}
+	//				//ii = envelope.size()-1;
+	//				flag = 1;
+	//			}
 
-			}
-		}
-		return center;
-	}
+	//		}
+	//	}
+	//	return center;
+	//}
 
 
 }

@@ -14,14 +14,15 @@
 #include <fstream>
 #include <iomanip>
 #include "cuda_runtime.h"
-#include "device_launch_parameters.h"
+//#include "device_launch_parameters.h"
 #include <cstdio>
-#include <vector_types.h>
+//#include <vector_types.h>
 #include <vector>
 #include <complex>
 #include <cuda.h>
 #include <cuComplex.h>
 #include <CudaArray.cuh>
+#include <tools.cuh>
 
 
 using namespace std;
@@ -34,6 +35,8 @@ public:
 	CUDASignalParamAnalyse();
 	~CUDASignalParamAnalyse();
 	
+	//__global__ void ComplexMat(cuComplex* Res, float* Real, float* Imag, int elements);
+
 
 	void StepAdvance(const vector<vector<complex<double>>>& trf, const vector<complex<double>>& SourceData);
 

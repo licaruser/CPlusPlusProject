@@ -408,7 +408,7 @@ public:
 	// 设置某几行
 	void setRow(CudaArray<int>& Row, unsigned int CurrentBand, CudaArray<Type>& Value, cudaStream_t stream)
 	{
-		if (Value.dims(1) != m_Cols || Value.dims(0) >= m_Rows || CurrentBand >= m_bands)
+		if (Value.dims(1) != m_Cols || Value.dims(0) >= m_Rows || CurrentBand >= m_Bands)
 		{
 			printf("维度不一致\n");throw;
 			return;
@@ -419,7 +419,7 @@ public:
 	// 设置某一列
 	void setCol(unsigned int Col, unsigned int CurrentBand, CudaArray<Type>& Value, cudaStream_t stream)
 	{
-		if (Value.elements() != m_Rows || CurrentBand >= m_bands)
+		if (Value.elements() != m_Rows || CurrentBand >= m_Bands)
 		{
 			printf("维度不一致\n");throw;
 			return;
@@ -552,9 +552,9 @@ public:
 
 	unsigned int dims(int dims)
 	{
-		if (dims == 0) return m_Rows;
-		else if (dims == 1) return m_Cols;
-		else if (dims == 2) return m_Bands;
+		if (dims == 0) return Rows;
+		else if (dims == 1) return Cols;
+		else if (dims == 2) return Bands;
 		else return -1;
 	}
 
@@ -563,7 +563,7 @@ public:
 	{
 		if (Rows != R || Cols != C || Bands != B)
 		{
-			free(d_Data);
+			free(h_Data);
 			err = Malloc(R, C, B);
 			if (err)
 				err =memcpy(h_Data, h_data, R * C * B);

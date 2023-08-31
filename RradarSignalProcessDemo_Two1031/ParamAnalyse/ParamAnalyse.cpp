@@ -362,6 +362,7 @@ vector<vector<int>> ParamAnalyse::QuanfyThreshold(const vector<vector<double>>& 
 
 double ParamAnalyse::AverageVec(const vector<vector<double>>& aveVec)
 {
+	//方法一：分别按列的行计算，再按列计算
 	vector<double> TempAveData;
 	double sumValue = 0.0;
 	double aveVecData = 0.0;
@@ -373,7 +374,24 @@ double ParamAnalyse::AverageVec(const vector<vector<double>>& aveVec)
 	}
 
 	double sumTotalValue = accumulate(begin(TempAveData), end(TempAveData), 0.0);
+	//std::cout << "总和" << sumTotalValue * 62500 << std::endl;
 	double aveVecTotalData = sumTotalValue / TempAveData.size();
+
+	////方法二：全部一起就算和，然后再除以总数
+	//vector<double> TempAveData;//和
+	//double sumValue = 0.0;
+	//double aveVecData = 0.0;
+	//for (int ii = 0; ii < aveVec.size(); ii++)
+	//{
+	//	sumValue = accumulate(begin(aveVec.at(ii)), end(aveVec.at(ii)), 0.0);
+	//	//aveVecData = sumValue / aveVec.at(ii).size();
+	//	TempAveData.push_back(sumValue);
+	//}
+
+	//double sumTotalValue = accumulate(begin(TempAveData), end(TempAveData), 0.0);//总和
+	//std::cout << "总和 sumTotalValue:" << sumTotalValue << std::endl;
+	//double aveVecTotalData = sumTotalValue / (TempAveData.size() * aveVec.at(0).size());
+	//std::cout << "平均值 aveVecTotalData:" << aveVecTotalData << std::endl;
 
 	return aveVecTotalData;
 }
@@ -407,7 +425,7 @@ void ParamAnalyse::StepAdvance(const vector<vector<complex<double>>> &trf,const 
 	vector<vector<int>> NN = QuanfyThreshold(SourceDouData, AveVectorDatal);
 
 	//保存量化之后的结果，确保门限值设置符合预期，使用MATLAB画图
-	RelyOnBINDou(NN);
+	//RelyOnBINDou(NN);
 
 
 	//根据时域数据计算脉冲上升沿下降沿时刻

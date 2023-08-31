@@ -13,10 +13,37 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="工具">
+      <UniqueIdentifier>{6f915853-fe57-4d2d-bd41-0ced82658bd3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="ParamTest.cu">
       <Filter>源文件</Filter>
+    </CudaCompile>
+    <CudaCompile Include="tools.cu">
+      <Filter>工具</Filter>
+    </CudaCompile>
+    <CudaCompile Include="accum.cu">
+      <Filter>工具</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CodingSeq.cu">
+      <Filter>工具</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CommonKernel.cu">
+      <Filter>工具</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CudaArrayTool.cu">
+      <Filter>工具</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cudaRand.cu">
+      <Filter>工具</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuDistributeKernel.cu">
+      <Filter>工具</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuPeriodicExtension.cu">
+      <Filter>工具</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
@@ -26,6 +53,27 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\INCLUDES\SignalParamAnalyse.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tools.cuh">
+      <Filter>工具</Filter>
+    </ClInclude>
+    <ClInclude Include="accum.cuh">
+      <Filter>工具</Filter>
+    </ClInclude>
+    <ClInclude Include="CodingSeq.cuh">
+      <Filter>工具</Filter>
+    </ClInclude>
+    <ClInclude Include="cudaRand.cuh">
+      <Filter>工具</Filter>
+    </ClInclude>
+    <ClInclude Include="cuDistributeKernel.cuh">
+      <Filter>工具</Filter>
+    </ClInclude>
+    <ClInclude Include="cuPeriodicExtension.cuh">
+      <Filter>工具</Filter>
+    </ClInclude>
+    <ClInclude Include="..\INCLUDES\ParamTest.cuh">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

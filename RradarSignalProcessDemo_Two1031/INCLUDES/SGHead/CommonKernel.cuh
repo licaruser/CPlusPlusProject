@@ -7,6 +7,13 @@
 #include "device_launch_parameters.h"
 #include "cufft.h"
 
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
+#include <cstdio>
+#include <vector_types.h>
+
+__global__ void hello_from_gpu();
+
 /*采样段时间序列生成*/
 __global__ void TBaseGen(double *t, double fs, double t0, int elements);
 
