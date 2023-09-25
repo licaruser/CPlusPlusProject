@@ -21,6 +21,8 @@
 #include "ParamAnalyse.h"
 #include "PublicDefinition.h"
 #include "SignalParamAnalyse.h"
+#include <cuda_runtime.h>
+#include <cufft.h>
 
 
 #define M_PI 3.1415926535897932384626433
@@ -43,7 +45,9 @@ public:
 	std::vector<std::vector<double>> tfrstft(const std::vector<double>& signal, int window_size, int overlap_size);
 
 	//Matlab中tfrstft复现，trf 输出二维矩阵，f 输出频率， x 输入原始数据， t 输入时间， N 输入频率分辨率点数
-	void tfrstft(vector<vector<complex<double>>>& trf, double& f, const vector<complex<double>>& x, vector<int>& t, int& N);
+	void tfrstft(vector<vector<complex<double>>>& trf, double& f, const vector<complex<double>>& x, vector<int>& t);
+
+	void tfrstft_gpu(vector<vector<complex<double>>>& trf, double& f, const vector<complex<double>>& x, vector<int>& t);
 
 	int min_member(int a, int b, int c);
 

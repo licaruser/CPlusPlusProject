@@ -1,5 +1,5 @@
 #include "TestSTFTDemo.h"
-
+#define N 256    //定义短时傅里叶变换处理点数
 
 
 ParamAnalyse* m_TmpParamEsta = new(ParamAnalyse);       //参数估计
@@ -19,6 +19,15 @@ int main()
 	Tmp_stft.Read_Csv_Data(SignalData, 1, 1);
 
 
+	vector<complex<double>> TmpSignalData;
+	for (int index = 0; index < 1; index++)
+	{
+		TmpSignalData.push_back(SignalData.at(index));
+	}
+	SignalData.clear();
+	SignalData = TmpSignalData;
+
+
 	vector<vector<complex<double>>> trf;
 	double f;
 	vector<int> t;
@@ -27,15 +36,23 @@ int main()
 	{
 		t.push_back(ii);
 	}
-	int N = 256;
+	//int N = 256;
 	//代码开始，计时开始
 	QueryPerformanceCounter(&Code_start);
-	Tmp_stft.tfrstft(trf, f, SignalData, t, N);
+	//Tmp_stft.tfrstft(trf, f, SignalData, t);
+
+	//gpu执行运算
+	Tmp_stft.tfrstft_gpu(trf, f, SignalData, t);
+
 	//代码结束，计时结束
 	QueryPerformanceCounter(&Code_stop);
 	double time_sec = (unsigned long long)(Code_stop.QuadPart - Code_start.QuadPart) / (double)freq.QuadPart;
-	//std::cout << "stft程序运行时间："<< time_sec << std::endl;
+	std::cout << "stft程序运行时间："<< time_sec << std::endl;
 	//cout.flush();
+
+    //录取短时傅里叶变换后的数据
+	Tmp_stft.SaveData_Csv(trf);
+
 
 	//ParamAnalyse TestClass;     //直接使用类定义申明
 	//TestClass.StepAdvance(trf);
@@ -46,8 +63,7 @@ int main()
 	/*Demo02 ： 调用GPU进行参数估计方案*/
 	m_SignalProcess_CUDA->StepAdvance(trf, SignalData);
 
-	//录取短时傅里叶变换后的数据
-	//Tmp_stft.SaveData_Csv(trf);
+
 
 
 	//int signal_len = SignalData.size();
@@ -192,7 +208,7 @@ void STFT_lgy::Read_Csv_Data(vector<complex<double>>& SignalData, int Init_row, 
 
 
 
-void STFT_lgy::tfrstft(vector<vector<complex<double>>>& trf, double& f, const vector<complex<double>>& x, vector<int>& t, int& N)
+void STFT_lgy::tfrstft(vector<vector<complex<double>>>& trf, double& f, const vector<complex<double>>& x, vector<int>& t)
 {
 
 	vector<vector<complex<double>>> Tmp_trf;
@@ -279,51 +295,6 @@ void STFT_lgy::tfrstft(vector<vector<complex<double>>>& trf, double& f, const ve
 		//int oo = 1;
 	}
 
-
-	//二维FFt失败
-	//int N1 = xrow;   //62500
-	//int N2 = FsPoint;  // 64
-	//fftw_complex* in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * N1 * N2);
-	//fftw_complex* out = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * N1 * N2);
-	////初始化输入数据
-	////for (int fft_ii = 0; fft_ii < N1 * N2; fft_ii++)
-	////{
-	//int fft_ii = 0;
-	////for (const auto& col_ii : Tmp_trf)
-	////{
-	////	for (const auto& row_ii : col_ii)
-	////	{
-	////		in[fft_ii][0] = row_ii.real();
-	////		in[fft_ii][1] = row_ii.imag();
-	////		fft_ii++;
-	////	}
-	////}
-	//// 先放64行，再放62500
-	//for (int ii_row = 0; ii_row < FsPoint; ii_row++)  //64
-	//{
-	//	for (int ii_col = 0; ii_col < xrow; ii_col++)  //62500 
-	//	{
-	//		in[fft_ii][0] = Tmp_trf.at(ii_col).at(ii_row).real();
-	//		in[fft_ii][1] = Tmp_trf.at(ii_col).at(ii_row).imag();
-	//		fft_ii++;
-	//	}
-	//}
-	////}
-	//// 创建 FFT 变换的计划对象
-	//fftw_plan  p = fftw_plan_dft_2d(N1, N2, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
-	//// 执行 FFT 变换
-	//fftw_execute(p);
-	//// 输出结果
-	//for (int out_ii = 0; out_ii < N1; out_ii++)  // 62500
-	//{
-	//	for (int out_jj = 0; out_jj < N2; out_jj++)  // 64
-	//	{
-	//		Tmp_trf.at(out_ii).at(out_jj).real(out[out_ii * N2 + out_jj][0]);//实部
-	//		Tmp_trf.at(out_ii).at(out_jj).imag(out[out_ii * N2 + out_jj][1]);//虚部
-	//	}
-	//}
-
-
 	vector<complex<double>> Tmp_in;
 	// 一维FFT
 	int NN = FsPoint;  // 64
@@ -346,18 +317,6 @@ void STFT_lgy::tfrstft(vector<vector<complex<double>>>& trf, double& f, const ve
 		// 执行DFT计算
 		fftw_execute(plan);
 
-		//// fftshift
-		//int kk = NN / 2;
-		//for (int i = 0; i < kk; i++)
-		//{
-		//	double tmp1 = out[i][0];
-		//	double tmp2 = out[i][1];
-		//	out[i][0] = out[i + kk][0];
-		//	out[i][1] = out[i + kk][1];
-		//	out[i + kk][0] = tmp1;
-		//	out[i + kk][1] = tmp2;
-		//}
-
 		// 输出DFT结果
 		for (int ii = 0; ii < NN; ii++)
 		{
@@ -371,10 +330,198 @@ void STFT_lgy::tfrstft(vector<vector<complex<double>>>& trf, double& f, const ve
 	fftw_free(out);
 	fftw_destroy_plan(plan);
 	
-
-
-
 	trf = Tmp_trf;
+
+}
+
+//使用gpu实现短时傅里叶变换
+void STFT_lgy::tfrstft_gpu(vector<vector<complex<double>>>& trf, double& f, const vector<complex<double>>& x, vector<int>& t)
+{
+	LARGE_INTEGER Gpu_start;
+	LARGE_INTEGER Gpu_stop;
+	LARGE_INTEGER Gpu_freq;
+	QueryPerformanceFrequency(&Gpu_freq);
+	QueryPerformanceCounter(&Gpu_start);
+
+
+	vector<vector<complex<double>>> Tmp_trf;
+	vector<complex<double>> Tmp_SourceData;
+	vector<int> Time;
+	int FsPoint;
+	Tmp_SourceData = x;
+	Time = t;
+	FsPoint = N;
+
+	int xrow = Tmp_SourceData.size();
+	int hlength = floor(FsPoint / 4);
+	hlength = hlength + 1 - (hlength % 2);//取余数
+
+	Tmp_trf.resize(xrow, std::vector<complex<double>>(FsPoint, 0));
+
+	// 创建窗口函数
+	std::vector<double> window;
+	for (int ii = 1; ii < hlength + 1; ii++)
+	{
+		window.push_back(0.54 - 0.46 * (std::cos(2.0 * M_PI * ii / (hlength + 1))));
+	}
+	int hrow = window.size();
+	int Lh = (hrow - 1) / 2;
+
+	VectorXd v(hrow);
+	for (int ii = 0; ii < window.size(); ii++)
+	{
+		v[ii] = window.at(ii);
+	}
+	double n = v.norm();
+	for (int ii = 0; ii < window.size(); ii++)
+	{
+		window.at(ii) = window.at(ii) / n;
+	}
+
+	int tcol = Time.size();
+
+	//短时傅里叶变换的核心
+	for (int icol = 0; icol < tcol; icol++)
+	{
+		int ti = Time.at(icol);
+		int tau_FuMin = -min_member(round(FsPoint / 2), Lh, ti - 1);
+		int tau_ZenMin = min_member(round(FsPoint / 2) - 1, Lh, xrow - ti);
+		vector<int> tau;
+
+		//保护tau_FuMin = tau_ZenMin+1 = 0；
+		if ((tau_ZenMin + 1) == 0)
+		{
+			if (tau_FuMin == 0)
+			{
+				tau.push_back(0);
+			}
+		}
+
+		for (int ii_tau = tau_FuMin; ii_tau < tau_ZenMin + 1; ii_tau++)
+		{
+			tau.push_back(ii_tau);
+		}
+
+		vector<int> indices;
+		complex<double> Tempcomplex;
+		vector<complex<double>> vectorTempComplex;
+		for (int indi = 0; indi < tau.size(); indi++)
+		{
+			indices.push_back(((tau.at(indi) + FsPoint) % FsPoint));
+
+			double window_real = window.at(Lh + tau.at(indi));
+			//stft核心计算
+			Tempcomplex.real(Tmp_SourceData.at(ti + tau.at(indi) - 1).real() * window_real);
+			Tempcomplex.imag(Tmp_SourceData.at(ti + tau.at(indi) - 1).imag() * window_real);
+
+			vectorTempComplex.push_back(Tempcomplex);
+			//Tmp_trf.at(icol).at(((tau.at(indi) + FsPoint) % FsPoint) + 1).real(Tmp_SourceData.at(ti + tau.at(indi)).real() * window.at(Lh + 1 + tau.at(indi)));
+			//Tmp_trf.at(icol).at(((tau.at(indi) + FsPoint) % FsPoint) + 1).imag(Tmp_SourceData.at(ti + tau.at(indi)).imag() * window.at(Lh + 1 + tau.at(indi)));
+		}
+
+		for (int pos = 0; pos < indices.size(); pos++)
+		{
+			int pos_indices = indices.at(pos);
+			Tmp_trf.at(icol).at(pos_indices).real(vectorTempComplex.at(pos).real());
+			Tmp_trf.at(icol).at(pos_indices).imag(vectorTempComplex.at(pos).imag());
+		}
+		//int oo = 1;
+	}
+	//代码结束，计时结束
+	QueryPerformanceCounter(&Gpu_stop);
+
+	const int numRows = 256;       // 矩阵行数
+	const int numColumns = 10;  // 矩阵列数
+	
+
+
+	// 输入数据
+	cufftComplex* hostInputData = new cufftComplex[numRows * numColumns];
+
+	
+
+	int aa_cols = 0;
+	int bb_rows = 0;
+	// 循环赋值
+	for (int ii = 0; ii < numRows * numColumns; ii++)
+	{
+		//printf("输出一列的每行数据aa_cols:%d,bb_rows:%d\n", aa_cols, bb_rows);//
+		hostInputData[ii].x = Tmp_trf.at(aa_cols).at(bb_rows).real();  //先放的是一列的每行数据，再放下一列
+		hostInputData[ii].y = Tmp_trf.at(aa_cols).at(bb_rows).imag();
+		//NN_Matrix[ii] = 0;
+		//printf("The %d data is %f  %f \n:", ii, hostInputData[ii].x, hostInputData[ii].y);
+
+		if (bb_rows == numRows - 1)
+		{
+			bb_rows = -1;
+			if (aa_cols == numColumns - 1)
+			{
+				break;
+			}
+			aa_cols++;
+			//continue;
+		}
+		bb_rows++;
+	}
+
+
+	double time_sec = (unsigned long long)(Gpu_stop.QuadPart - Gpu_start.QuadPart) / (double)Gpu_freq.QuadPart;
+	std::cout << "gpu计算前的赋值时间：" << time_sec << std::endl;
+
+
+	// 创建CUDA设备上的输入和输出数组
+	cufftComplex* deviceInputData;
+	cufftComplex* deviceOutputData;
+	cudaMalloc((void**)& deviceInputData, sizeof(cufftComplex) * numRows * numColumns);
+	cudaMalloc((void**)& deviceOutputData, sizeof(cufftComplex) * numRows * numColumns);
+
+	// 将输入数据从主机内存复制到设备内存
+	cudaError_t cudaStatus_Input = cudaMemcpy(deviceInputData, hostInputData, sizeof(cufftComplex) * numRows * numColumns, cudaMemcpyHostToDevice);
+	if (cudaStatus_Input!= cudaSuccess)
+	{
+		std::cout << "CudaMemcpy failed:" << cudaGetErrorString(cudaStatus_Input) << std::endl;
+	}
+
+
+	cufftHandle plan;
+	cufftPlan1d(&plan, numRows, CUFFT_C2C, numColumns);
+
+	//for (int jj = 0; jj < numRows * numColumns; jj++)
+	//{
+	//	printf("The %d data is %f  %f \n:", jj, deviceInputData[jj].x, deviceInputData[jj].y);
+	//}
+
+	cufftExecC2C(plan, deviceInputData, deviceOutputData, CUFFT_FORWARD);
+
+	cudaMemcpy(hostInputData, deviceOutputData, sizeof(cufftComplex)* numRows* numColumns, cudaMemcpyDeviceToHost);
+
+	int row_d2h = 0; //0-255
+	int col_d2h = 0; //0-62499
+
+	vector<vector<complex<double>>> tmp_vector(numColumns,vector<complex<double>>(numRows));
+	//trf.resize(numRows, numColumns);
+
+
+
+	for (int jj = 0; jj < numRows * numColumns; jj++)
+	{
+		//printf("The %d data is %f  %f \n:", jj, hostInputData[jj].x, hostInputData[jj].y);
+		tmp_vector.at(col_d2h).at(row_d2h).real(hostInputData[jj].x);
+		tmp_vector.at(col_d2h).at(row_d2h).imag(hostInputData[jj].y);
+
+		row_d2h++;
+		if (row_d2h == numRows)
+		{
+			col_d2h++;
+			row_d2h = 0;
+		}
+	}
+	trf = tmp_vector;
+
+	delete[] hostInputData;
+	cudaFree(deviceInputData);
+	cudaFree(deviceOutputData);
+	cufftDestroy(plan);
 
 }
 

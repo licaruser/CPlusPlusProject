@@ -25,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "自研工程", "自研工�
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "雷达信号分选", "雷达信号分选", "{2DE023F0-5CA3-42B7-8E62-4EB382218DC6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LeeCodeTest", "LeeCodeTest\LeeCodeTest.vcxproj", "{183AE74C-3FD7-4611-99A4-D216BEA3FA77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -81,6 +83,14 @@ Global
 		{5B840270-FA75-49D3-B44A-6581DCC4AF8C}.Release|x64.Build.0 = Release|x64
 		{5B840270-FA75-49D3-B44A-6581DCC4AF8C}.Release|x86.ActiveCfg = Release|Win32
 		{5B840270-FA75-49D3-B44A-6581DCC4AF8C}.Release|x86.Build.0 = Release|Win32
+		{183AE74C-3FD7-4611-99A4-D216BEA3FA77}.Debug|x64.ActiveCfg = Debug|x64
+		{183AE74C-3FD7-4611-99A4-D216BEA3FA77}.Debug|x64.Build.0 = Debug|x64
+		{183AE74C-3FD7-4611-99A4-D216BEA3FA77}.Debug|x86.ActiveCfg = Debug|Win32
+		{183AE74C-3FD7-4611-99A4-D216BEA3FA77}.Debug|x86.Build.0 = Debug|Win32
+		{183AE74C-3FD7-4611-99A4-D216BEA3FA77}.Release|x64.ActiveCfg = Release|x64
+		{183AE74C-3FD7-4611-99A4-D216BEA3FA77}.Release|x64.Build.0 = Release|x64
+		{183AE74C-3FD7-4611-99A4-D216BEA3FA77}.Release|x86.ActiveCfg = Release|Win32
+		{183AE74C-3FD7-4611-99A4-D216BEA3FA77}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,6 +101,7 @@ Global
 		{766AD41C-708A-4532-8287-5EF1F3C8AB69} = {C3986C70-A262-4317-B405-197017FD343B}
 		{B235141E-0E8E-4551-A9B6-E9952F15C4F3} = {C3986C70-A262-4317-B405-197017FD343B}
 		{5B840270-FA75-49D3-B44A-6581DCC4AF8C} = {C3986C70-A262-4317-B405-197017FD343B}
+		{183AE74C-3FD7-4611-99A4-D216BEA3FA77} = {3792D064-3A2C-4AEF-96F3-C8A8A7D04438}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {328B41E2-9FC1-412E-A4A3-A83D201F4342}

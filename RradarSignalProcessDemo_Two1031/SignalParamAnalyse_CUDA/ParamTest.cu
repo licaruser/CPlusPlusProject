@@ -1,4 +1,5 @@
 ﻿#include "ParamTest.cuh"
+#include <numeric>
 #include "CommonKernel.cuh"
 
 
@@ -152,7 +153,42 @@ void ParamGpuProgressHe(vector<vector<double>>& lep,const vector<complex<double>
 	//Source_Data
 	//先识别一维原始数据的脉冲起始时间和结束时间，再根据此时间，计算二维带宽
 
+	////根据时域数据计算脉冲上升沿下降沿时刻
+	//vector<int> UpVec;           //上升沿vector
+	//vector<int> DownVec;         //下降沿vector
+	//vector<int> PulseWidthVec;   //对应脉宽
+	//double CurrentTime = 0.0;
+	//double m_JamInitSampleFs = 0.0;
+	////m_pSignalProcessor->GetJamInitSampleFs(m_JamInitSampleFs);
+	//// 参数估计--估计脉冲上升沿、下降沿、脉宽
+	//if (Source_Data.size() > 0)
+	//{
+	//	ParameterAnalysis(Source_Data, UpVec, DownVec, PulseWidthVec, CurrentTime, m_JamInitSampleFs);//输出雷达信号参数单位(毫秒)[上升沿、下降沿、脉宽]
+	//}
 
+
+
+	//for (int ii = 0;ii<UpVec.size();ii++)
+	//{
+	//	int begin_data = UpVec.at(ii);  //起始位置
+	//	int end_data = DownVec.at(ii);  //结束位置
+
+	//	int ThreadNum = end_data - begin_data;
+
+	//	int* Array;
+	//	cudaError_t cudaMalloc_Array = cudaMalloc((void**)& Array, ThreadNum * 2 * sizeof(int));
+	//	if (cudaMalloc_Array != cudaSuccess)
+	//	{
+	//		std::cout << "CudaMalloc failed:" << cudaGetErrorString(cudaMalloc_Array) << std::endl;
+	//	}
+	//	cudaError_t cudaStatus_Array = cudaMemcpy(Array, 0, ThreadNum * 2 * sizeof(int), cudaMemcpyHostToDevice);
+	//	if (cudaStatus_Array != cudaSuccess)
+	//	{
+	//		std::cout << "CudaMemcpy failed:" << cudaGetErrorString(cudaStatus_Array) << std::endl;
+	//	}
+
+
+	//}
 
 
 
@@ -167,6 +203,150 @@ void ParamGpuProgressHe(vector<vector<double>>& lep,const vector<complex<double>
 
 }
 
+void ParameterAnalysis(const vector<complex<double>>& AllRadarData, vector<int>& UpData, vector<int>& DownData, vector<int>& PulseWidth, double& time, const double Fs)
+{
+	// 估计AllRadarData的上升沿、下降沿和脉宽，并存入对应的vector中，便于后续进行分选处理
+	int PulseUpFlag = 0;
+	int PulseDownFlag = 0;
+	int PulseUpPos = 0;
+	int PulseDownPos = 0;
+
+	// 1、计算abs值
+	vector<double> HeDataABS;
+	HeDataABS.resize(AllRadarData.size());
+	for (int ii = 0; ii < AllRadarData.size(); ii++)
+	{
+		float RealData = AllRadarData.at(ii).real();
+		float ImagData = AllRadarData.at(ii).imag();
+		HeDataABS[ii] = sqrt(RealData * RealData + ImagData * ImagData);
+	}
+
+	// 2、利用前面纯噪声部分计算噪声功率和方差
+	vector<double> DataRead;
+	DataRead.resize(HeDataABS.size());
+	for (int jj = 0; jj < HeDataABS.size(); jj++)
+	{
+		DataRead[jj] = HeDataABS[jj] * HeDataABS[jj];   //计算功率
+	}
+	HeDataABS.clear();
+
+	// 检测所用参数
+	int PulseFlag = 0;
+	int	CntBegin = 0;
+	int CntEnd = 0;
+	double NoisePower = 0.0;
+	double DataPower = 0.0;
+	int BeginFrameThrh = 128;
+	int EndFrameThrh = 128;
+	int FrameSize = 128; //帧长度
+	NoisePower = accumulate(DataRead.begin(), DataRead.begin() + FrameSize, 0.0) / FrameSize; //计算前128个点的噪声功率均值
+
+	vector<double> data_buff;
+	data_buff.resize(FrameSize);
+	// 3、能量检测方法检测脉冲边沿
+	vector <int> UpPoint;
+	vector <int> DownPoint;
+	vector <int> PulseWidthPoint;
+	for (int k = 0; k < DataRead.size(); k++)
+	{
+
+		for (int j = 1; j < FrameSize; j++)
+		{
+			data_buff[FrameSize - j] = data_buff[FrameSize - j - 1];
+		}
+		data_buff[0] = DataRead[k];
+
+		//if (k == 800)
+		//{
+		//	int oo = 0;  //测试
+		//}
+		DataPower = accumulate(data_buff.begin(), data_buff.end(), 0.0) / data_buff.size();  //计算该帧信号平均功率
+
+		if (DataPower > 1.5 * NoisePower)
+		{
+			CntEnd = 0;
+			CntBegin = CntBegin + 1;
+
+			if (CntBegin >= BeginFrameThrh) // 连续有超过BeginFrameThrh帧信号超过检测门限，则认为是脉冲开始
+			{
+				if (PulseFlag == 0) // 此前还未检测到脉冲
+				{
+					// 寻找精确的脉冲起始位置
+					PulseUpPos = k - FrameSize;
+					UpPoint.push_back(PulseUpPos);
+				}
+
+				PulseUpFlag = 1;
+				PulseFlag = 1;
+
+			}
+		}
+		else
+		{
+			if (PulseFlag == 1)
+			{
+				CntEnd = CntEnd + 1;
+				if (CntEnd >= EndFrameThrh)  //有连续超过EndFrameThrh帧信号低于检测门限，则认为是脉冲结束
+				{
+					// 寻找精确的脉冲结束位置
+					PulseDownPos = k - FrameSize - 127;
+					DownPoint.push_back(PulseDownPos);
+					PulseWidthPoint.push_back(PulseDownPos - PulseUpPos);
+					PulseDownFlag = 1;
+					PulseFlag = 0;
+					CntBegin = 0;
+				}
+			}
+			else
+			{
+				CntBegin = 0;
+				CntEnd = 0;
+			}
+		}
+	}
+
+	// 4、点数换算时间--将点数Pos位置换算到时间上(单位/毫秒)
+	for (int aa = 0; aa < UpPoint.size(); aa++)
+	{
+		//double Tmp_UpTime;
+		//Tmp_UpTime = ((time + UpPoint[aa] / Fs) * 1e3);
+		UpData.push_back(UpPoint.at(aa));
+	}
+	for (int bb = 0; bb < DownPoint.size(); bb++)
+	{
+		//double Tmp_DownTime;
+		//Tmp_DownTime = ((time + DownPoint[bb] / Fs) * 1e3);
+		DownData.push_back(DownPoint.at(bb));
+	}
+	for (int cc = 0; cc < PulseWidthPoint.size(); cc++)
+	{
+		//double Tmp_PulseWidthTime;
+		//Tmp_PulseWidthTime = ((time * 1e3 + PulseWidthPoint[cc] / Fs) * 1e3);
+		PulseWidth.push_back(PulseWidthPoint.at(cc));
+	}
+
+
+
+	//// 4、点数换算时间--将点数Pos位置换算到时间上(单位/毫秒)
+	//for (int aa = 0; aa < UpPoint.size(); aa++)
+	//{
+	//	double Tmp_UpTime;
+	//	Tmp_UpTime = ((time + UpPoint[aa] / Fs) * 1e3);
+	//	UpData.push_back(Tmp_UpTime);
+	//}
+	//for (int bb = 0; bb < DownPoint.size(); bb++)
+	//{
+	//	double Tmp_DownTime;
+	//	Tmp_DownTime = ((time + DownPoint[bb] / Fs) * 1e3);
+	//	DownData.push_back(Tmp_DownTime);
+	//}
+	//for (int cc = 0; cc < PulseWidthPoint.size(); cc++)
+	//{
+	//	double Tmp_PulseWidthTime;
+	//	Tmp_PulseWidthTime = ((time * 1e3 + PulseWidthPoint[cc] / Fs) * 1e3);
+	//	PulseWidth.push_back(Tmp_PulseWidthTime);
+	//}
+}
 
 
 void Test(vector<complex<double>>& temp)
